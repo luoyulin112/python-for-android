@@ -875,7 +875,7 @@ def run_pymodules_install(ctx, arch, modules, project_dir=None,
         base_env["PYTHONPATH"] = ctx.get_site_packages_dir(arch)
         info('Upgrade pip to latest version')
         shprint(sh.bash, '-c', (
-            "source venv/bin/activate && pip install -U pip"
+            "source venv/bin/activate && pip install --no-cache-dir 'pip==23.3.2'"
         ), _env=copy.copy(base_env))
 
         # Install Cython in case modules need it to build:
