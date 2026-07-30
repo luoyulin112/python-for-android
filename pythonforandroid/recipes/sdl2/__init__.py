@@ -42,16 +42,11 @@ class LibSDL2Recipe(BootstrapNDKRecipe):
                 c = open(amk).read()
                 if "FORTIFY_SOURCE=0" not in c:
                     c += (
-                        "
-"
-                        "# Patched by baibao build: disable bionic FORTIFY (SDL2 destroyed-mutex SIGABRT)
-"
-                        "APP_OPTIM := debug
-"
-                        "APP_CFLAGS += -D_FORTIFY_SOURCE=0
-"
-                        "APP_CPPFLAGS += -D_FORTIFY_SOURCE=0
-"
+                        "\n"
+                        "# Patched by baibao build: disable bionic FORTIFY (SDL2 destroyed-mutex SIGABRT)\n"
+                        "APP_OPTIM := debug\n"
+                        "APP_CFLAGS += -D_FORTIFY_SOURCE=0\n"
+                        "APP_CPPFLAGS += -D_FORTIFY_SOURCE=0\n"
                     )
                     open(amk, "w").write(c)
             shprint(
