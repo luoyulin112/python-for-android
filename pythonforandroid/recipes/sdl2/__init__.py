@@ -30,7 +30,30 @@ class LibSDL2Recipe(BootstrapNDKRecipe):
     def build_arch(self, arch):
         env = self.get_recipe_env(arch)
 
-        with current_directory(self.get_jni_dir()):
+        jnidir = self.get_jni_dir()
+        with current_directory(jnidir):
+            # Disable bionic FORTIFY: NDK r25+ enables _FORTIFY_SOURCE=2 for release
+            # builds, which makes SDL2's pthread_mutex_lock on a (sometimes already
+            # destroyed) mutex abort with SIGABRT at startup. Force a debug optim
+            # level (NDK adds no FORTIFY for debug) and also explicitly undefine
+            # _FORTIFY_SOURCE as a belt-and-suspenders measure.
+            amk = join(jnidir, "Application.mk")
+            if exists(amk):
+                c = open(amk).read()
+                if "FORTIFY_SOURCE=0" not in c:
+                    c += (
+                        "
+"
+                        "# Patched by baibao build: disable bionic FORTIFY (SDL2 destroyed-mutex SIGABRT)
+"
+                        "APP_OPTIM := debug
+"
+                        "APP_CFLAGS += -D_FORTIFY_SOURCE=0
+"
+                        "APP_CPPFLAGS += -D_FORTIFY_SOURCE=0
+"
+                    )
+                    open(amk, "w").write(c)
             shprint(
                 sh.Command(join(self.ctx.ndk_dir, "ndk-build")),
                 "V=1",
